@@ -14,7 +14,7 @@ class VideoViewModel {
         case failed
     }
     
-    private let loader: VideoLoader
+    private let videoURLStorage: LocalStorage
     private var subscriptions = Set<AnyCancellable>()
     private var timeObserver: Any?
 
@@ -28,14 +28,14 @@ class VideoViewModel {
     @Published var isPlaying = false
     let player = AVPlayer()
     
-    init(loader: VideoLoader) {
-        self.loader = loader
+    init(storage: LocalStorage) {
+        self.videoURLStorage = storage
     }
     
     func load(from url: URL) {
         subscriptions.removeAll()
-        
-        let playerItem = loader.loadItem(from: url)
+        let asset = AVURLAsset(url: url)
+        let playerItem = AVPlayerItem(asset: asset, automaticallyLoadedAssetKeys: [.duration])
         playerItem.publisher(for: \.status)
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -45,6 +45,7 @@ class VideoViewModel {
                 case .readyToPlay:
                     self.durationText = getDurationText(CMTimeGetSeconds(playerItem.duration))
                     self.status = .readyToPlay
+                    self.videoURLStorage.save(url: url)
                 case .failed:
                     self.status = .failed
                 case .unknown:

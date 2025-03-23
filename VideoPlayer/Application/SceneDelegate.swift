@@ -11,20 +11,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        let videoViewModel = VideoViewModel(loader: RemoteVideoLoader())
-        let nav = UINavigationController(rootViewController: VideoURLInputViewController(viewModel: videoViewModel))
-        window?.rootViewController = nav
+        window?.rootViewController = getRootViewContorller()
         window?.makeKeyAndVisible()
-        
     }
-
+    
+    func getRootViewContorller() -> UIViewController {
+        let storage = UserDefaultStorage()
+        let videoViewModel = VideoViewModel(storage: storage)
+        let urlInputVC = VideoURLInputViewController(viewModel: videoViewModel)
+        let urlHistoryVC = URLHistoryViewController(storage: storage)
+        urlInputVC.tabBarItem = UITabBarItem(title: "Video URL", image: UIImage(systemName: "arrow.up.circle.fill"), tag: 0)
+        urlHistoryVC.tabBarItem = UITabBarItem(title: "History", image: UIImage(systemName: "clock.fill"), tag: 1)
+        let tabBarList = [urlInputVC, urlHistoryVC]
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = tabBarList
+        return tabBarController
+    }
+    
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
