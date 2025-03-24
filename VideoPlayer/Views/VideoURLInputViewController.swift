@@ -78,8 +78,8 @@ class VideoURLInputViewController: UIViewController, PlayerViewDelegate {
             playButton.topAnchor.constraint(equalTo: urlTextField.bottomAnchor, constant: 20),
             
             playerView.topAnchor.constraint(equalTo: playButton.bottomAnchor, constant: 20),
-            playerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            playerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            playerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            playerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             playerView.heightAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 9 / 16),
             
             playerView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: scrollView.bottomAnchor, multiplier: 0.2)

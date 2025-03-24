@@ -11,7 +11,6 @@ import AVFoundation
 protocol PlayerControlDelegate: AnyObject {
     func didTogglePlay()
     func didSlideSeek(to value: Float)
-    func didTapDownload()
 }
 
 class PlayerControlView: UIView {
@@ -37,34 +36,6 @@ class PlayerControlView: UIView {
         slider.addTarget(self, action: #selector(didSlideSeek), for: .valueChanged)
         slider.setThumbImage(createCircleImage(diameter: 16, color: .white), for: .normal)
         return slider
-    }()
-    
-    // TODO: -
-    private lazy var timeRateButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(systemName: "goforward.10"), for: .normal)
-        button.tintColor = .white
-        return button
-    }()
-    
-    // TODO: -
-    private lazy var downloadButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(systemName: "arrow.down.circle"), for: .normal)
-        button.tintColor = .white
-        button.backgroundColor = .systemBlue
-        button.addTarget(self, action: #selector(didTapDownload), for: .touchUpInside)
-        return button
-    }()
-    
-    // TODO: -
-    private lazy var downloadProgressView: UIProgressView = {
-        let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.trackTintColor = .lightGray
-        progressView.progressTintColor = .white
-        progressView.isHidden = true
-        progressView.backgroundColor = .systemBlue
-        return progressView
     }()
     
     private let separator = UIView()
@@ -116,7 +87,7 @@ class PlayerControlView: UIView {
             durationLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             durationLabel.leadingAnchor.constraint(equalTo: separator.trailingAnchor, constant: 2),
             currentTimeLabel.centerYAnchor.constraint(equalTo: durationLabel.centerYAnchor),
-            slider.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.65),
+            slider.trailingAnchor.constraint(equalTo: currentTimeLabel.leadingAnchor, constant: -8),
             separator.leadingAnchor.constraint(equalTo: currentTimeLabel.trailingAnchor, constant: 2),
             separator.heightAnchor.constraint(equalToConstant: 8),
             separator.centerYAnchor.constraint(equalTo: durationLabel.centerYAnchor),
@@ -132,10 +103,6 @@ class PlayerControlView: UIView {
         delegate?.didSlideSeek(to: slider.value)
     }
     
-    @objc private func didTapDownload() {
-        delegate?.didTapDownload()
-    }
-    
     func updatePlayPauseButton(isPlaying: Bool) {
         playButton.isSelected = isPlaying
     }
@@ -143,9 +110,6 @@ class PlayerControlView: UIView {
     func updateSlider(maxValue: Float, currentTime: Float) {
         slider.maximumValue = maxValue
         slider.value = currentTime
-    }
-    
-    func updateDownloadProgress(_ progress: Float) {
     }
     
     func setDuration(_ text: String) {

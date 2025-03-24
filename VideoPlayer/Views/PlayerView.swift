@@ -46,7 +46,7 @@ class PlayerView: UIView {
     
     private lazy var retryButton: UIButton = {
         let retryButton = UIButton(type: .system)
-        retryButton.setTitle("Retry", for: .normal)
+        retryButton.setTitle("重試", for: .normal)
         retryButton.setImage(UIImage(systemName: "arrow.triangle.2.circlepath"), for: .normal)
         retryButton.addTarget(self, action: #selector(retryButtonTapped), for: .touchUpInside)
         return retryButton
@@ -93,6 +93,10 @@ class PlayerView: UIView {
         addGestureRecognizer(doubleTapGesture)
         
         bindViewModel()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func bindViewModel() {
@@ -151,9 +155,10 @@ class PlayerView: UIView {
     }
     
     @objc func handleDoubleGestureTapped(_ sender: UIGestureRecognizer) {
-        let vc = FullScreenVideoPlayerViewController(viewModel: viewModel)
-        vc.modalPresentationStyle = .formSheet
-        delegate?.fullScreenPresentingController?.present(vc, animated: true)
+        let controller = FullScreenVideoPlayerViewController(viewModel: viewModel)
+        controller.modalPresentationStyle = .fullScreen
+        controller.modalTransitionStyle = .crossDissolve
+        delegate?.fullScreenPresentingController?.present(controller, animated: true)
     }
     
     func load(_ url: URL) {
@@ -174,10 +179,6 @@ class PlayerView: UIView {
         guard let url else { return }
         load(url)
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
 }
 
 extension PlayerView: PlayerControlDelegate {
@@ -188,10 +189,4 @@ extension PlayerView: PlayerControlDelegate {
     func didSlideSeek(to value: Float) {
         viewModel.seek(to: value)
     }
-    
-    func didTapDownload() {
-        
-    }
-    
-    
 }

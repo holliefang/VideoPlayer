@@ -79,6 +79,8 @@ extension URLHistoryViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let viewModel = VideoViewModel(storage: storage)
         let controller = FullScreenVideoPlayerViewController(viewModel: viewModel)
+        controller.modalPresentationStyle = .fullScreen
+        controller.modalTransitionStyle = .crossDissolve
         let videoURL = videoURLs[indexPath.row]
         viewModel.load(from: videoURL)
         present(controller, animated: true)
