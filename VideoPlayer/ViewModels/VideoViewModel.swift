@@ -27,9 +27,18 @@ class VideoViewModel {
     }
     @Published var isPlaying = false
     let player = AVPlayer()
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "mm:ss"
+        return formatter
+    }()
     
     init(storage: LocalStorage) {
         self.videoURLStorage = storage
+    }
+    
+    deinit {
+        removeTimeObserver()
     }
     
     func load(from url: URL) {
@@ -56,18 +65,7 @@ class VideoViewModel {
             }
             .store(in: &subscriptions)
         player.replaceCurrentItem(with: playerItem)
-        
-        removeTimeObserver()
-        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 600), queue: .main) { [weak self] time in
-            guard let self = self,
-                  self.duration > 0 else { return }
-            let seconds = CMTimeGetSeconds(time)
-            let minutes = Int(seconds) / 60
-            let secs = Int(seconds) % 60
-            self.currentTimeText = String(format: "%02d:%02d", minutes, secs)
-            self.progress = Float(seconds / duration)
-        }
-        
+                
         player.publisher(for: \.timeControlStatus)
             .removeDuplicates()
             .throttle(for: .seconds(0.45), scheduler: DispatchQueue.main, latest: true)
@@ -87,10 +85,12 @@ class VideoViewModel {
     
     func play() {
         player.play()
+        addTimeObserver()
     }
     
     func pause() {
         player.pause()
+        removeTimeObserver()
     }
     
     @objc private func videoDidFinishPlaying() {
@@ -113,11 +113,22 @@ class VideoViewModel {
         }
         timeObserver = nil
     }
+    
+    private func addTimeObserver() {
+        guard timeObserver == nil else { return }
+        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 600), queue: .main) { [weak self] time in
+            guard let self = self,
+                  self.duration > 0 else { return }
+            let seconds = CMTimeGetSeconds(time)
+            let minutes = Int(seconds) / 60
+            let secs = Int(seconds) % 60
+            self.currentTimeText = String(format: "%02d:%02d", minutes, secs)
+            self.progress = Float(seconds / duration)
+        }
+    }
 
     private func getDurationText(_ seconds: Double) -> String {
         let date = Date(timeIntervalSince1970: seconds)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "mm:ss"
-        return dateFormatter.string(from: date)
+        return VideoViewModel.dateFormatter.string(from: date)
     }
 }
